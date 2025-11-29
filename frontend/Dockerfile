@@ -4,8 +4,8 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
+COPY package.json ./
+RUN npm install
 
 # Build the source code
 FROM base AS builder
