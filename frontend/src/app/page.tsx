@@ -11,16 +11,10 @@ export default function Home() {
         <p className="text-gray-500 dark:text-gray-400 mb-12">
           Assess, track, and optimize your team&apos;s skills with our comprehensive skills management platform.
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center">
           <Link
             href="/login"
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/login"
-            className="border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-200 font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Get Started
           </Link>
