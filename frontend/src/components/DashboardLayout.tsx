@@ -7,8 +7,8 @@ import { useAuth } from '@/lib/auth-context';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-  { href: '/assessment', label: 'My Assessment', icon: '📝' },
-  { href: '/matrix', label: 'Skills Matrix', icon: '🎯' },
+  { href: '/evaluation', label: 'My Evaluation', icon: '📝' },
+  { href: '/vector', label: 'Capability Vector', icon: '🎯' },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

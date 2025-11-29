@@ -6,8 +6,8 @@ import { AuthProvider } from '@/lib/auth-context'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Capaz - Skills Matrix',
-  description: 'Corporate Skills Matrix Platform - Assess, track, and optimize your team\'s skills',
+  title: 'Capaz - Capability Vector',
+  description: 'Capability Vector Platform - Evaluate, track, and optimize your team\'s capabilities',
 }
 
 export default function RootLayout({

@@ -6,10 +6,10 @@ export default function Home() {
       <div className="text-center max-w-2xl">
         <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">Capaz</h1>
         <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-          Corporate Skills Matrix Platform
+          Capability Vector Platform
         </p>
         <p className="text-gray-500 dark:text-gray-400 mb-12">
-          Assess, track, and optimize your team&apos;s skills with our comprehensive skills management platform.
+          Evaluate, track, and optimize your team&apos;s capabilities with our comprehensive capability management platform.
         </p>
         <div className="flex justify-center">
           <Link

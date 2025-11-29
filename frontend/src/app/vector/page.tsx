@@ -71,16 +71,16 @@ export default function MatrixPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Skills Matrix</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Capability Vector</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {isManager ? 'Team skills overview' : 'Organization skills overview'}
+            {isManager ? 'Team capabilities overview' : 'Organization capabilities overview'}
           </p>
         </div>
 
         {/* Legend */}
         <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
           <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Skill Levels:</span>
+            <span className="text-gray-600 dark:text-gray-400">Capability Levels:</span>
             {['N/A', 'None', 'Beginner', 'Basic', 'Intermediate', 'Advanced', 'Expert'].map((label, i) => (
               <div key={i} className="flex items-center gap-1">
                 <div className={`w-4 h-4 rounded ${i === 0 ? 'bg-gray-400' : LEVEL_COLORS[i-1]}`}></div>
@@ -93,9 +93,9 @@ export default function MatrixPage() {
         {!isManager || teamData.length === 0 ? (
           <div className="bg-white dark:bg-slate-800 rounded-xl p-8 text-center border border-gray-200 dark:border-slate-700">
             <p className="text-gray-600 dark:text-gray-400">
-              {isManager 
-                ? 'No team assessments available yet.' 
-                : 'Matrix view is available for managers and admins.'}
+              {isManager
+                ? 'No team evaluations available yet.'
+                : 'Vector view is available for managers and admins.'}
             </p>
           </div>
         ) : (

@@ -55,7 +55,7 @@ export default function DashboardPage() {
             Welcome back, {user.firstName}!
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Here's an overview of your skills assessment.
+            Here's an overview of your capability evaluation.
           </p>
         </div>
 
@@ -80,16 +80,16 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
             <Link
-              href="/assessment"
+              href="/evaluation"
               className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
             >
-              📝 {currentAssessment ? 'Update Assessment' : 'Start Assessment'}
+              📝 {currentAssessment ? 'Update Evaluation' : 'Start Evaluation'}
             </Link>
             <Link
-              href="/matrix"
+              href="/vector"
               className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 font-medium rounded-lg transition-colors text-gray-700 dark:text-gray-200"
             >
-              🎯 View Skills Matrix
+              🎯 View Capability Vector
             </Link>
           </div>
         </div>

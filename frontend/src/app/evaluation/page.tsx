@@ -104,7 +104,7 @@ export default function AssessmentPage() {
       await assessments.submit(token, data);
       setSaved(true);
     } catch (err) {
-      alert('Failed to save assessment');
+      alert('Failed to save evaluation');
     } finally {
       setSaving(false);
     }
@@ -126,9 +126,9 @@ export default function AssessmentPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Skills Assessment</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Capability Evaluation</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Rate your proficiency level for each skill (0-5)
+              Rate your proficiency level for each capability (0-5)
             </p>
           </div>
           <button
@@ -136,7 +136,7 @@ export default function AssessmentPage() {
             disabled={saving}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg"
           >
-            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Assessment'}
+            {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Evaluation'}
           </button>
         </div>
 
