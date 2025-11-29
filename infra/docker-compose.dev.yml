@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: skills-matrix-db-dev
+    container_name: capaz-db-dev
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -21,7 +21,7 @@ services:
       context: ../backend
       dockerfile: Dockerfile
       target: deps
-    container_name: skills-matrix-backend-dev
+    container_name: capaz-evaluate-dev
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/skills_matrix_dev?schema=public
       NODE_ENV: development
@@ -42,7 +42,7 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       target: deps
-    container_name: skills-matrix-frontend-dev
+    container_name: capaz-vector-dev
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
     ports:

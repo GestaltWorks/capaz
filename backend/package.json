@@ -1,7 +1,7 @@
 {
-  "name": "skills-matrix-backend",
+  "name": "capaz-evaluate",
   "version": "0.1.0",
-  "description": "Corporate Skills Matrix Platform - Backend API",
+  "description": "Capaz - Skills Assessment API",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
