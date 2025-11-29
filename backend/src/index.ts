@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import { errorHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './routes/health.js';
 import { apiRouter } from './routes/api/index.js';
+import authRouter from './routes/auth.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -24,6 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/health', healthRouter);
 app.use('/api/v1', apiRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', usersRouter);
 
 // Error handling
 app.use(errorHandler);
