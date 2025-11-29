@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ORGANIZATION - Multi-tenant hierarchy
+// ============================================================================
+
+enum OrganizationType {
+  PLATFORM_OWNER
+  MSP_RESELLER
+  DIRECT_CLIENT
+  END_CLIENT
+}
+
+model Organization {
+  id       String           @id @default(uuid())
+  name     String
+  slug     String           @unique
+  type     OrganizationType @default(DIRECT_CLIENT)
+
+  // Hierarchy - parent organization for MSP → End Client relationship
+  parentOrgId String?       @map("parent_org_id")
+  parent      Organization? @relation("OrgHierarchy", fields: [parentOrgId], references: [id], onDelete: SetNull)
+  children    Organization[] @relation("OrgHierarchy")
+
+  // Branding
+  logoUrl      String? @map("logo_url")
+  primaryColor String? @map("primary_color")
+  customDomain String? @unique @map("custom_domain")
+
+  // Settings
+  defaultLanguage String @default("en") @map("default_language")
+  timezone        String @default("UTC")
+
+  // Metadata
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users           User[]
+  skillCategories SkillCategory[]
+
+  @@map("organizations")
+}
+
+// ============================================================================
+// USER - Organization members with roles
+// ============================================================================
+
+enum UserRole {
+  PLATFORM_ADMIN
+  ORG_ADMIN
+  MANAGER
+  USER
+}
+
+model User {
+  id             String  @id @default(uuid())
+  email          String  @unique
+  hashedPassword String? @map("hashed_password")
+
+  // Profile
+  firstName       String  @map("first_name")
+  lastName        String  @map("last_name")
+  jobTitle        String? @map("job_title")
+  department      String?
+  profileImageUrl String? @map("profile_image_url")
+
+  // Organization membership
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           UserRole     @default(USER)
+
+  // Manager relationship
+  managerId    String? @map("manager_id")
+  manager      User?   @relation("ManagerReports", fields: [managerId], references: [id], onDelete: SetNull)
+  directReports User[] @relation("ManagerReports")
+
+  // Flags
+  isTrainer     Boolean @default(false) @map("is_trainer")
+  isProjectLead Boolean @default(false) @map("is_project_lead")
+  isMentor      Boolean @default(false) @map("is_mentor")
+
+  // Account status
+  isActive   Boolean   @default(true) @map("is_active")
+  isVerified Boolean   @default(false) @map("is_verified")
+  lastLogin  DateTime? @map("last_login")
+
+  // Preferences
+  language String  @default("en")
+  timezone String?
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  assessments Assessment[]
+
+  @@index([organizationId])
+  @@index([managerId])
+  @@map("users")
+}
+
+// ============================================================================
+// SKILLS - Categories and individual skills
+// ============================================================================
+
+model SkillCategory {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  icon        String?
+
+  // Organization scope (null = platform-wide template)
+  organizationId String?       @map("organization_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Ordering and hierarchy
+  sortOrder        Int            @default(0) @map("sort_order")
+  parentCategoryId String?        @map("parent_category_id")
+  parentCategory   SkillCategory? @relation("CategoryHierarchy", fields: [parentCategoryId], references: [id], onDelete: SetNull)
+  childCategories  SkillCategory[] @relation("CategoryHierarchy")
+
+  // Template info
+  isTemplate   Boolean @default(false) @map("is_template")
+  templateType String? @map("template_type")
+
+  // Status
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  skills Skill[]
+
+  @@index([organizationId])
+  @@map("skill_categories")
+}
+
+model Skill {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  // Category relationship
+  categoryId String        @map("category_id")
+  category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Ordering
+  sortOrder Int @default(0) @map("sort_order")
+
+  // Skill metadata
+  tooltip           String?
+  levelDescriptions Json?   @map("level_descriptions")
+  isCertifiable     Boolean @default(false) @map("is_certifiable")
+  certificationNames Json?  @map("certification_names")
+
+  // Deprecation
+  isDeprecated            Boolean @default(false) @map("is_deprecated")
+  deprecatedReplacementId String? @map("deprecated_replacement_id")
+  replacement             Skill?  @relation("SkillReplacement", fields: [deprecatedReplacementId], references: [id], onDelete: SetNull)
+  replacedBy              Skill[] @relation("SkillReplacement")
+
+  // Status
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  responses AssessmentResponse[]
+
+  @@index([categoryId])
+  @@map("skills")
+}
+
+// ============================================================================
+// ASSESSMENTS - User skill assessments
+// ============================================================================
+
+model Assessment {
+  id String @id @default(uuid())
+
+  // User who submitted
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  version     Int      @default(1)
+  isComplete  Boolean  @default(false) @map("is_complete")
+  submittedAt DateTime? @map("submitted_at")
+
+  // Status
+  isCurrent Boolean @default(true) @map("is_current")
+  notes     String?
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  responses AssessmentResponse[]
+
+  @@index([userId])
+  @@map("assessments")
+}
+
+model AssessmentResponse {
+  id String @id @default(uuid())
+
+  // Parent assessment
+  assessmentId String     @map("assessment_id")
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Skill being assessed
+  skillId String @map("skill_id")
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  // Self-assessment level (0-5)
+  level Int
+
+  // Certification data
+  hasCertification    Boolean   @default(false) @map("has_certification")
+  certificationName   String?   @map("certification_name")
+  certificationExpiry DateTime? @map("certification_expiry")
+
+  // Training interest
+  wantsTraining Boolean @default(false) @map("wants_training")
+  notes         String?
+
+  // Validation
+  isPeerValidated   Boolean @default(false) @map("is_peer_validated")
+  isManagerApproved Boolean @default(false) @map("is_manager_approved")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([assessmentId, skillId])
+  @@index([assessmentId])
+  @@index([skillId])
+  @@map("assessment_responses")
+}
+
