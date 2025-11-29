@@ -8,6 +8,8 @@ import { healthRouter } from './routes/health.js';
 import { apiRouter } from './routes/api/index.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
+import skillsRouter from './routes/skills.js';
+import assessmentsRouter from './routes/assessments.js';
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -28,6 +30,8 @@ app.use('/health', healthRouter);
 app.use('/api/v1', apiRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/skills', skillsRouter);
+app.use('/api/v1/assessments', assessmentsRouter);
 
 // Error handling
 app.use(errorHandler);
