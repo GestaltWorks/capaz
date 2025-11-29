@@ -26,7 +26,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/skills_matrix_dev?schema=public
       NODE_ENV: development
       JWT_SECRET: dev-secret-key-change-in-production
-      CORS_ORIGINS: http://localhost:3000,http://frontend:3000
+      CORS_ORIGINS: http://localhost:3000,http://frontend:3000,http://192.168.0.16:3000
     ports:
       - "8000:8000"
     volumes:
@@ -44,7 +44,7 @@ services:
       target: deps
     container_name: capaz-vector-dev
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_API_URL: http://192.168.0.16:8000/api/v1
     ports:
       - "3000:3000"
     volumes:
