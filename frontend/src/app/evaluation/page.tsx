@@ -245,7 +245,7 @@ export default function AssessmentPage() {
   }
 
   const totalSkills = categories.reduce((acc, c) => acc + (c.skills?.length || 0), 0);
-  const assessedCount = Object.keys(responses).length;
+  const assessedCount = Object.values(responses).filter(r => r.hasExperience || r.wantsExperience).length;
 
   return (
     <DashboardLayout>
