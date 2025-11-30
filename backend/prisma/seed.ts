@@ -149,11 +149,14 @@ async function main() {
     },
   ];
 
+  let totalCategories = 0;
+  let totalSkills = 0;
+
   for (const cat of mspSkillData) {
     const catId = `seed-${cat.name.toLowerCase().replace(/\s+/g, '-')}`;
     await prisma.skillCategory.upsert({
       where: { id: catId },
-      update: {},
+      update: { name: cat.name, description: cat.description },
       create: {
         id: catId,
         name: cat.name,
@@ -162,12 +165,14 @@ async function main() {
         templateType: 'MSP',
       },
     });
+    totalCategories++;
+    console.log(`   Category: ${cat.name}`);
 
     for (const skill of cat.skills) {
       const skillId = `seed-${skill.name.toLowerCase().replace(/\s+/g, '-')}`;
       await prisma.skill.upsert({
         where: { id: skillId },
-        update: {},
+        update: { name: skill.name, description: skill.description, categoryId: catId },
         create: {
           id: skillId,
           name: skill.name,
@@ -175,10 +180,11 @@ async function main() {
           categoryId: catId,
         },
       });
+      totalSkills++;
     }
   }
 
-  console.log('✅ Seed completed');
+  console.log(`✅ Seed completed: ${totalCategories} categories, ${totalSkills} skills`);
   console.log(`   Platform org: ${platformOrg.name}`);
   console.log(`   Demo MSP: ${demoMsp.name}`);
   console.log(`   Demo Client: ${demoClient.name}`);
