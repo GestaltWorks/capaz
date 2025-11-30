@@ -291,14 +291,14 @@ export default function AssessmentPage() {
             <button onClick={() => toggleCategory(category.id)}
               className={`w-full px-6 py-4 flex justify-between items-center transition-colors hover:opacity-90 ${headerStyles}`}>
               <div className="text-left">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <h2 className="font-semibold text-gray-900 dark:text-white">{category.name}</h2>
-                  {isComplete && <span className="text-green-600 dark:text-green-400 text-sm">✓ Complete</span>}
+                  {isComplete && <span className="text-green-600 dark:text-green-400 text-sm flex items-center gap-1"><span className="text-2xl">✓</span> Complete</span>}
                   {isPartial && <span className="text-amber-600 dark:text-amber-400 text-sm">{filledCount}/{totalInCategory}</span>}
                 </div>
                 {category.description && <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>}
               </div>
-              <span className="text-gray-400 text-lg">{isExpanded ? '▼' : '▶'}</span>
+              <span className="text-gray-400 text-3xl">{isExpanded ? '▼' : '▶'}</span>
             </button>
 
             {isExpanded && category.skills && (
