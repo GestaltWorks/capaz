@@ -159,6 +159,16 @@ export default function AssessmentPage() {
   const [showRadarChart, setShowRadarChart] = useState(true);
   const [identifiedSkills, setIdentifiedSkills] = useState<Set<string>>(new Set());
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
+
+  const toggleSkillDetails = (skillId: string) => {
+    setExpandedSkills((prev) => {
+      const next = new Set(prev);
+      if (next.has(skillId)) next.delete(skillId);
+      else next.add(skillId);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -648,268 +658,209 @@ export default function AssessmentPage() {
                     );
                   }
 
+                  const isSkillExpanded = expandedSkills.has(skill.id);
+                  const hasDetails = r.hasExperience || r.wantsExperience;
+
                   return (
-                    <div key={skill.id} id={`skill-${skill.id}`} className="px-6 py-5">
-                      {/* Skill name + toggles */}
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-gray-900 dark:text-white">{skill.name}</h3>
-                          {skill.description && <p className="text-sm text-gray-500 mt-0.5">{skill.description}</p>}
+                    <div key={skill.id} id={`skill-${skill.id}`} className="px-6 py-3">
+                      {/* Skill row - compact */}
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900 dark:text-white truncate">{skill.name}</h3>
+                            {hasDetails && (
+                              <button onClick={() => toggleSkillDetails(skill.id)}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm">
+                                {isSkillExpanded ? '▼' : '▶'}
+                              </button>
+                            )}
+                          </div>
+                          {!hasDetails && skill.description && (
+                            <p className="text-xs text-gray-400 truncate">{skill.description}</p>
+                          )}
                         </div>
-                        {/* Two distinct toggles */}
-                        <div className="flex flex-col gap-2 shrink-0">
+                        {/* Toggles */}
+                        <div className="flex items-center gap-2 shrink-0">
                           {/* I have experience - green */}
                           <button onClick={() => updateResponse(skill.id, { hasExperience: !r.hasExperience, wantsExperience: false })}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                               r.hasExperience
                                 ? 'bg-green-500 text-white shadow-md'
                                 : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-400'
                             }`}>
-                            <span className="text-base">{r.hasExperience ? '✓' : '○'}</span>
-                            I have experience
+                            <span>{r.hasExperience ? '✓' : '○'}</span>
+                            <span className="hidden sm:inline">Experience</span>
                           </button>
-                          {/* I want experience - purple/blue */}
+                          {/* I want experience - purple */}
                           {!r.hasExperience && (
                             <button onClick={() => updateResponse(skill.id, { wantsExperience: !r.wantsExperience, hasExperience: false })}
-                              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                                 r.wantsExperience
                                   ? 'bg-purple-500 text-white shadow-md'
                                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-400'
                               }`}>
-                              <span className="text-base">{r.wantsExperience ? '★' : '☆'}</span>
-                              I want to learn this
+                              <span>{r.wantsExperience ? '★' : '☆'}</span>
+                              <span className="hidden sm:inline">Learn</span>
                             </button>
                           )}
                         </div>
                       </div>
 
-                      {/* Wants Experience - show training interest form */}
-                      {r.wantsExperience && !r.hasExperience && (
-                        <div className="mt-4 space-y-4 pl-0 border-l-4 border-purple-200 dark:border-purple-800 animate-in slide-in-from-top-2">
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgent is this for you?</label>
-                            <div className="flex gap-2">
-                              {[
-                                { id: 'whenever', label: 'Whenever possible', color: 'bg-gray-100' },
-                                { id: 'soon', label: 'Next few months', color: 'bg-yellow-100' },
-                                { id: 'urgent', label: 'High priority', color: 'bg-red-100' },
-                              ].map((u) => (
-                                <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
-                                  className={`px-3 py-1.5 text-sm rounded border transition-all ${
-                                    r.trainingUrgency === u.id ? `${u.color} border-purple-400 font-medium` : 'bg-white border-gray-200 dark:bg-slate-700'
-                                  }`}>
-                                  {u.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">What type of learning?</label>
-                            <div className="flex gap-2">
-                              {[
-                                { id: 'course', label: 'One-time course' },
-                                { id: 'ongoing', label: 'Ongoing learning' },
-                                { id: 'conference', label: 'Conference/event' },
-                              ].map((t) => (
-                                <button key={t.id} onClick={() => updateResponse(skill.id, { trainingType: t.id })}
-                                  className={`px-3 py-1.5 text-sm rounded border transition-all ${
-                                    r.trainingType === t.id ? 'bg-purple-100 border-purple-400 font-medium' : 'bg-white border-gray-200 dark:bg-slate-700'
-                                  }`}>
-                                  {t.label}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="pl-4">
-                            <input type="text" placeholder="Any specific training, courses, or conferences you're interested in?"
-                              value={r.conferenceInterest} onChange={(e) => updateResponse(skill.id, { conferenceInterest: e.target.value })}
-                              className="w-full px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                          </div>
-                        </div>
-                      )}
+                      {/* Expandable Details Section */}
+                      {hasDetails && isSkillExpanded && (
+                        <div className="mt-3 ml-4 border-l-2 border-gray-200 dark:border-slate-600 pl-4 space-y-4 animate-in slide-in-from-top-1">
+                          {/* Skill description if exists */}
+                          {skill.description && (
+                            <p className="text-sm text-gray-500">{skill.description}</p>
+                          )}
 
-                      {/* Has Experience - show full form */}
-                      {r.hasExperience && (
-                        <div className="mt-4 space-y-5 pl-0 border-l-4 border-green-200 dark:border-green-800 animate-in slide-in-from-top-2">
-                          {/* Proficiency Slider */}
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How would you rate your skill level?</label>
-                            <ProficiencySlider value={r.proficiency} onChange={(v) => updateResponse(skill.id, { proficiency: v })} />
-                          </div>
-
-                          {/* Currently using at work */}
-                          <div className="pl-4">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" checked={r.usesAtWork} onChange={(e) => updateResponse(skill.id, { usesAtWork: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-blue-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">I use this in my current role</span>
-                            </label>
-                          </div>
-
-                          {/* Enjoyment Slider */}
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How much do you enjoy working with this?</label>
-                            <EnjoymentSlider value={r.enjoyment} onChange={(v) => updateResponse(skill.id, { enjoyment: v })} />
-                          </div>
-
-                          {/* Certifications - Multi-entry */}
-                          <div className="pl-4 space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" checked={r.hasCerts} onChange={(e) => {
-                                if (e.target.checked && r.certifications.length === 0) {
-                                  // Add first empty cert when checking
-                                  updateResponse(skill.id, { hasCerts: true, certifications: [{ name: '', obtained: '', needsRenewal: false }] });
-                                } else {
-                                  updateResponse(skill.id, { hasCerts: e.target.checked });
-                                }
-                              }}
-                                className="w-5 h-5 rounded border-gray-300 text-blue-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">I have certifications for this skill</span>
-                            </label>
-                            {r.hasCerts && (
-                              <div className="space-y-2 animate-in slide-in-from-top-1">
-                                {r.certifications.map((cert, idx) => (
-                                  <div key={idx} className="flex gap-2 items-center">
-                                    <input type="text" placeholder="Certification name" value={cert.name}
-                                      onChange={(e) => {
-                                        const updated = [...r.certifications];
-                                        updated[idx] = { ...cert, name: e.target.value };
-                                        updateResponse(skill.id, { certifications: updated });
-                                      }}
-                                      className="flex-1 px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                    <input type="text" placeholder="Year obtained" value={cert.obtained}
-                                      onChange={(e) => {
-                                        const updated = [...r.certifications];
-                                        updated[idx] = { ...cert, obtained: e.target.value };
-                                        updateResponse(skill.id, { certifications: updated });
-                                      }}
-                                      className="w-28 px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
-                                      <input type="checkbox" checked={cert.needsRenewal} onChange={(e) => {
-                                        const updated = [...r.certifications];
-                                        updated[idx] = { ...cert, needsRenewal: e.target.checked };
-                                        updateResponse(skill.id, { certifications: updated });
-                                      }}
-                                        className="w-4 h-4 rounded" />
-                                      Renewal
-                                    </label>
-                                    <button onClick={() => {
-                                      const updated = r.certifications.filter((_, i) => i !== idx);
-                                      updateResponse(skill.id, { certifications: updated, hasCerts: updated.length > 0 });
-                                    }}
-                                      className="text-red-500 hover:text-red-700 px-2 py-1 text-lg">×</button>
-                                  </div>
-                                ))}
-                                <button onClick={() => {
-                                  updateResponse(skill.id, { certifications: [...r.certifications, { name: '', obtained: '', needsRenewal: false }] });
-                                }}
-                                  className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center gap-1">
-                                  <span>+</span> Add another certification
-                                </button>
+                          {/* Wants Experience - training interest form */}
+                          {r.wantsExperience && !r.hasExperience && (
+                            <div className="space-y-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                              <div>
+                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Urgency</label>
+                                <div className="flex gap-2">
+                                  {[
+                                    { id: 'whenever', label: 'When possible' },
+                                    { id: 'soon', label: 'Soon' },
+                                    { id: 'urgent', label: 'Urgent' },
+                                  ].map((u) => (
+                                    <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
+                                      className={`px-2 py-1 text-xs rounded transition-all ${
+                                        r.trainingUrgency === u.id ? 'bg-purple-500 text-white' : 'bg-white dark:bg-slate-700 border'
+                                      }`}>
+                                      {u.label}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
-                            )}
-                          </div>
-
-                          {/* Training Background */}
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How did you learn this? (select all that apply)</label>
-                            <div className="flex flex-wrap gap-2">
-                              {TRAINING_BG.map((t) => (
-                                <button key={t} onClick={() => toggleTraining(t)}
-                                  className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
-                                    r.trainingBackground?.includes(t)
-                                      ? 'bg-blue-100 border-blue-400 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                      : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100 dark:bg-slate-700 dark:border-slate-600'
-                                  }`}>
-                                  {t}
-                                </button>
-                              ))}
+                              <input type="text" placeholder="Training notes..."
+                                value={r.conferenceInterest} onChange={(e) => updateResponse(skill.id, { conferenceInterest: e.target.value })}
+                                className="w-full px-2 py-1 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
                             </div>
-                          </div>
+                          )}
 
-                          {/* Want More Training */}
-                          <div className="pl-4 space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" checked={r.wantsTraining} onChange={(e) => updateResponse(skill.id, { wantsTraining: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-purple-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">I want/need more training in this area</span>
-                            </label>
-                            {r.wantsTraining && (
-                              <div className="space-y-3 animate-in slide-in-from-top-1">
-                                <div>
-                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgent is this for you?</label>
+                          {/* Has Experience - full details form */}
+                          {r.hasExperience && (
+                            <div className="space-y-3 bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+                              {/* Proficiency Slider */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Skill Level</label>
+                                <ProficiencySlider value={r.proficiency} onChange={(v) => updateResponse(skill.id, { proficiency: v })} />
+                              </div>
+
+                              {/* Enjoyment Slider */}
+                              <div>
+                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Enjoyment</label>
+                                <EnjoymentSlider value={r.enjoyment} onChange={(v) => updateResponse(skill.id, { enjoyment: v })} />
+                              </div>
+
+                              {/* Quick toggles row */}
+                              <div className="flex flex-wrap gap-3">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={r.usesAtWork} onChange={(e) => updateResponse(skill.id, { usesAtWork: e.target.checked })}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600" />
+                                  <span className="text-gray-600 dark:text-gray-400">Use at work</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={r.canMentor} onChange={(e) => updateResponse(skill.id, { canMentor: e.target.checked })}
+                                    className="w-4 h-4 rounded border-gray-300 text-amber-600" />
+                                  <span className="text-gray-600 dark:text-gray-400">Can mentor</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={r.canLead} onChange={(e) => updateResponse(skill.id, { canLead: e.target.checked })}
+                                    className="w-4 h-4 rounded border-gray-300 text-indigo-600" />
+                                  <span className="text-gray-600 dark:text-gray-400">Can lead</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={r.hasCerts} onChange={(e) => {
+                                    if (e.target.checked && r.certifications.length === 0) {
+                                      updateResponse(skill.id, { hasCerts: true, certifications: [{ name: '', obtained: '', needsRenewal: false }] });
+                                    } else {
+                                      updateResponse(skill.id, { hasCerts: e.target.checked });
+                                    }
+                                  }}
+                                    className="w-4 h-4 rounded border-gray-300 text-blue-600" />
+                                  <span className="text-gray-600 dark:text-gray-400">Certified</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer text-sm">
+                                  <input type="checkbox" checked={r.wantsTraining} onChange={(e) => updateResponse(skill.id, { wantsTraining: e.target.checked })}
+                                    className="w-4 h-4 rounded border-gray-300 text-purple-600" />
+                                  <span className="text-gray-600 dark:text-gray-400">Want training</span>
+                                </label>
+                              </div>
+
+                              {/* Certifications - expandable */}
+                              {r.hasCerts && (
+                                <div className="space-y-2 border-t pt-2">
+                                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Certifications</label>
+                                  {r.certifications.map((cert, idx) => (
+                                    <div key={idx} className="flex gap-2 items-center">
+                                      <input type="text" placeholder="Certification name" value={cert.name}
+                                        onChange={(e) => {
+                                          const updated = [...r.certifications];
+                                          updated[idx] = { ...cert, name: e.target.value };
+                                          updateResponse(skill.id, { certifications: updated });
+                                        }}
+                                        className="flex-1 px-2 py-1 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                                      <input type="text" placeholder="Year" value={cert.obtained}
+                                        onChange={(e) => {
+                                          const updated = [...r.certifications];
+                                          updated[idx] = { ...cert, obtained: e.target.value };
+                                          updateResponse(skill.id, { certifications: updated });
+                                        }}
+                                        className="w-16 px-2 py-1 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                                      <button onClick={() => {
+                                        const updated = r.certifications.filter((_, i) => i !== idx);
+                                        updateResponse(skill.id, { certifications: updated, hasCerts: updated.length > 0 });
+                                      }}
+                                        className="text-red-500 hover:text-red-700 text-lg">×</button>
+                                    </div>
+                                  ))}
+                                  <button onClick={() => {
+                                    updateResponse(skill.id, { certifications: [...r.certifications, { name: '', obtained: '', needsRenewal: false }] });
+                                  }}
+                                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400">+ Add cert</button>
+                                </div>
+                              )}
+
+                              {/* Training request - expandable */}
+                              {r.wantsTraining && (
+                                <div className="space-y-2 border-t pt-2">
                                   <div className="flex gap-2">
                                     {[
-                                      { id: 'whenever', label: 'Whenever possible', color: 'bg-gray-100' },
-                                      { id: 'soon', label: 'Next few months', color: 'bg-yellow-100' },
-                                      { id: 'urgent', label: 'High priority', color: 'bg-red-100' },
+                                      { id: 'whenever', label: 'When possible' },
+                                      { id: 'soon', label: 'Soon' },
+                                      { id: 'urgent', label: 'Urgent' },
                                     ].map((u) => (
                                       <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
-                                        className={`px-3 py-1.5 text-sm rounded border transition-all ${
-                                          r.trainingUrgency === u.id ? `${u.color} border-gray-400 font-medium` : 'bg-white border-gray-200 dark:bg-slate-700'
+                                        className={`px-2 py-1 text-xs rounded transition-all ${
+                                          r.trainingUrgency === u.id ? 'bg-purple-500 text-white' : 'bg-white dark:bg-slate-700 border'
                                         }`}>
                                         {u.label}
                                       </button>
                                     ))}
                                   </div>
                                 </div>
-                                <div>
-                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">What type of learning?</label>
-                                  <div className="flex gap-2">
-                                    {[
-                                      { id: 'course', label: 'One-time course' },
-                                      { id: 'ongoing', label: 'Ongoing learning' },
-                                      { id: 'conference', label: 'Conference/event' },
-                                    ].map((t) => (
-                                      <button key={t.id} onClick={() => updateResponse(skill.id, { trainingType: t.id })}
-                                        className={`px-3 py-1.5 text-sm rounded border transition-all ${
-                                          r.trainingType === t.id ? 'bg-purple-100 border-purple-400 font-medium' : 'bg-white border-gray-200 dark:bg-slate-700'
-                                        }`}>
-                                        {t.label}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                                <div>
-                                  <input type="text" placeholder="Any specific training, courses, or conferences you're interested in?"
-                                    value={r.conferenceInterest} onChange={(e) => updateResponse(skill.id, { conferenceInterest: e.target.value })}
-                                    className="w-full px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                </div>
+                              )}
+
+                              {/* Future Willingness */}
+                              <div className="border-t pt-2">
+                                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Future willingness</label>
+                                <WillingnessSelector
+                                  value={r.futureWillingness}
+                                  onChange={(v) => updateResponse(skill.id, { futureWillingness: v })}
+                                />
                               </div>
-                            )}
-                          </div>
 
-                          {/* Mentor & Lead */}
-                          <div className="pl-4 flex flex-wrap gap-4">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={r.canMentor} onChange={(e) => updateResponse(skill.id, { canMentor: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-amber-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">I can mentor others in this</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={r.canLead} onChange={(e) => updateResponse(skill.id, { canLead: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-indigo-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">I can lead projects using this</span>
-                            </label>
-                          </div>
-
-                          {/* Future Willingness */}
-                          <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                              Willingness to use in future roles/projects
-                            </label>
-                            <WillingnessSelector
-                              value={r.futureWillingness}
-                              onChange={(v) => updateResponse(skill.id, { futureWillingness: v })}
-                            />
-                          </div>
-
-                          {/* Notes */}
-                          <div className="pl-4">
-                            <input type="text" placeholder="Any other notes about this skill..."
-                              value={r.notes} onChange={(e) => updateResponse(skill.id, { notes: e.target.value })}
-                              className="w-full px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                          </div>
+                              {/* Notes */}
+                              <div>
+                                <input type="text" placeholder="Any other notes about this skill..."
+                                  value={r.notes} onChange={(e) => updateResponse(skill.id, { notes: e.target.value })}
+                                  className="w-full px-2 py-1 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
