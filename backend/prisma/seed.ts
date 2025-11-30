@@ -90,6 +90,8 @@ async function main() {
         { name: 'Setting Response Expectations', description: 'Communicating timelines honestly and managing queues' },
         { name: 'Multi-Channel Support', description: 'Managing concurrent chats, calls, and tickets effectively' },
         { name: 'Escalation Judgment', description: 'Recognizing when issues require senior resources' },
+        { name: 'Ticket Documentation Quality', description: 'Writing clear notes that help the next technician' },
+        { name: 'VIP & Priority Handling', description: 'Managing high-profile users with appropriate urgency' },
       ],
     },
     {
@@ -104,6 +106,8 @@ async function main() {
         { name: 'Client Relationship at Site', description: 'Reading organizational dynamics, building trust in person' },
         { name: 'Professional Presence', description: 'Representing the company in client environments' },
         { name: 'Handoff & Follow-Up', description: 'Documenting visit outcomes and next steps clearly' },
+        { name: 'Workstation Deployment', description: 'New PC setup, data migration, user onboarding' },
+        { name: 'Physical Security Awareness', description: 'Server room access, visitor protocols, secure disposal' },
       ],
     },
     {
@@ -118,6 +122,8 @@ async function main() {
         { name: 'Accurate Time Entry', description: 'Consistent, detailed time tracking for billing and metrics' },
         { name: 'Workflow Optimization', description: 'Ticket routing, SLA rules, automation triggers' },
         { name: 'Reporting & Metrics', description: 'Extracting insights from PSA data' },
+        { name: 'Agreement & Contract Setup', description: 'Configuring recurring services and SLAs' },
+        { name: 'Board & Queue Management', description: 'Organizing ticket flow for team efficiency' },
       ],
     },
     {
@@ -132,6 +138,8 @@ async function main() {
         { name: 'Alert Tuning', description: 'Reducing noise while catching real issues' },
         { name: 'Script Deployment', description: 'Pushing automation across managed endpoints' },
         { name: 'Agent Health Management', description: 'Ensuring coverage and resolving offline agents' },
+        { name: 'Custom Monitor Creation', description: 'Building monitors for client-specific applications' },
+        { name: 'Endpoint Reporting', description: 'Compliance dashboards, inventory, health status' },
       ],
     },
     {
@@ -146,6 +154,7 @@ async function main() {
         { name: 'Knowledge Capture', description: 'Documenting undocumented systems and processes' },
         { name: 'End-User Guides', description: 'Client-facing documentation that reduces support calls' },
         { name: 'Documentation Maintenance', description: 'Keeping records current as environments change' },
+        { name: 'Diagram Creation', description: 'Visio, draw.io, Lucidchart network and process diagrams' },
       ],
     },
 
@@ -162,6 +171,8 @@ async function main() {
         { name: 'License Management', description: 'Optimization, assignment, E3/E5/Business Premium decisions' },
         { name: 'CIPP (CyberDrain)', description: 'Multi-tenant M365 management and automation' },
         { name: 'Microsoft Graph API', description: 'PowerShell and API-based administration and reporting' },
+        { name: 'Entra ID (Azure AD)', description: 'User management, groups, hybrid identity, SSO' },
+        { name: 'Intune / Endpoint Manager', description: 'MDM, device policies, application deployment' },
       ],
     },
     {
@@ -176,6 +187,8 @@ async function main() {
         { name: 'DNS Security', description: 'Cisco Umbrella, DNSFilter, content filtering' },
         { name: 'Email Security', description: 'Proofpoint, Mimecast, Avanan, advanced threat protection' },
         { name: 'Security Incident Response', description: 'Containment, investigation, remediation, client communication' },
+        { name: 'Security Awareness Training', description: 'KnowBe4, Proofpoint SAT, phishing simulations' },
+        { name: 'Vulnerability Management', description: 'Scanning, prioritization, remediation tracking' },
       ],
     },
     {
@@ -190,6 +203,7 @@ async function main() {
         { name: 'RTO/RPO Planning', description: 'Recovery objectives aligned to business requirements' },
         { name: 'M365 Backup', description: 'Third-party backup for Exchange, SharePoint, OneDrive, Teams' },
         { name: 'Disaster Recovery Execution', description: 'Bare-metal recovery, failover procedures, DR testing' },
+        { name: 'Immutable Backup Strategy', description: 'Ransomware-resistant backup configurations' },
       ],
     },
     {
@@ -204,6 +218,8 @@ async function main() {
         { name: 'ISP Coordination', description: 'Troubleshooting circuit issues with carriers' },
         { name: 'Network Remediation', description: 'Addressing inherited misconfigurations and technical debt' },
         { name: 'VPN & Remote Access', description: 'Site-to-site, client VPN, always-on configurations' },
+        { name: 'SD-WAN', description: 'Multi-site connectivity, failover, traffic shaping' },
+        { name: 'VLAN & Segmentation', description: 'Network isolation, guest networks, IoT separation' },
       ],
     },
 
@@ -220,6 +236,7 @@ async function main() {
         { name: 'User Lifecycle Automation', description: 'Onboarding/offboarding, provisioning, deprovisioning' },
         { name: 'Scheduled Task Management', description: 'Maintenance windows, automated jobs, monitoring' },
         { name: 'Process Improvement', description: 'Identifying manual work that should be automated' },
+        { name: 'Python / Bash Scripting', description: 'Cross-platform automation beyond PowerShell' },
       ],
     },
 
@@ -236,6 +253,7 @@ async function main() {
         { name: 'SLA Monitoring', description: 'Tracking response/resolution times, preventing breaches' },
         { name: 'Daily Operations', description: 'Team standups, queue management, workload balancing' },
         { name: 'Capacity Forecasting', description: 'Anticipating resource needs based on trends' },
+        { name: 'Project Scheduling', description: 'Coordinating project work alongside service delivery' },
       ],
     },
 
@@ -252,6 +270,7 @@ async function main() {
         { name: 'Difficult Conversations', description: 'Delivering unwelcome news professionally' },
         { name: 'Executive Communication', description: 'Presenting to leadership, board-level discussions' },
         { name: 'Competitive Response', description: 'Handling client retention when competitors engage' },
+        { name: 'Compliance Advisory', description: 'Guiding clients on regulatory requirements' },
       ],
     },
     {
@@ -266,6 +285,7 @@ async function main() {
         { name: 'Quick Wins', description: 'Identifying visible improvements early in relationship' },
         { name: 'Expectation Alignment', description: 'Establishing service levels and communication norms' },
         { name: 'Transition Management', description: 'Professional handoff from previous IT provider' },
+        { name: 'Security Baseline Deployment', description: 'Implementing minimum security standards immediately' },
       ],
     },
 
@@ -282,6 +302,7 @@ async function main() {
         { name: 'Partner & Vendor Programs', description: 'Leveraging Microsoft, vendor incentives, co-sell' },
         { name: 'Competitive Differentiation', description: 'Articulating unique value vs competitors' },
         { name: 'Pipeline Management', description: 'Accurate forecasting and opportunity tracking' },
+        { name: 'Contract Negotiation', description: 'Terms, SLAs, scope discussions' },
       ],
     },
     {
@@ -296,6 +317,7 @@ async function main() {
         { name: 'Client Profitability', description: 'Identifying underperforming client relationships' },
         { name: 'Payroll & Compensation', description: 'Time tracking accuracy, payroll processing' },
         { name: 'Cash Flow Management', description: 'Working capital, payment cycles, forecasting' },
+        { name: 'Financial Reporting', description: 'P&L, balance sheet, management dashboards' },
       ],
     },
     {
@@ -310,6 +332,7 @@ async function main() {
         { name: 'Team Recognition', description: 'Celebrating wins, acknowledging contributions' },
         { name: 'Remote Culture', description: 'Building connection in distributed teams' },
         { name: 'Knowledge Continuity', description: 'Ensuring critical knowledge survives turnover' },
+        { name: 'Compensation & Benefits', description: 'Salary benchmarking, benefits administration' },
       ],
     },
     {
@@ -324,6 +347,7 @@ async function main() {
         { name: 'RMA Processing', description: 'Warranty claims, hardware replacement' },
         { name: 'Asset Tracking', description: 'Inventory management, spare equipment' },
         { name: 'Partner Relationships', description: 'Vendor program benefits, priority support' },
+        { name: 'Lease & Finance Options', description: 'Hardware-as-a-Service, leasing programs' },
       ],
     },
     // ===== INTERPERSONAL & SOFT SKILLS =====
@@ -339,6 +363,7 @@ async function main() {
         { name: 'Peer Support', description: 'Recognizing when colleagues need help' },
         { name: 'Self-Regulation', description: 'Managing personal stress between interactions' },
         { name: 'Recognition & Encouragement', description: 'Acknowledging contributions and building morale' },
+        { name: 'Active Listening', description: 'Fully understanding before responding' },
       ],
     },
     {
@@ -353,6 +378,7 @@ async function main() {
         { name: 'Effective Documentation', description: 'Writing that people actually read and follow' },
         { name: 'Video Tutorial Creation', description: 'Loom, Snagit, screen recording instruction' },
         { name: 'Socratic Guidance', description: 'Helping others find answers themselves' },
+        { name: 'Cross-Training', description: 'Enabling team coverage and reducing single points of failure' },
       ],
     },
     {
@@ -367,6 +393,7 @@ async function main() {
         { name: 'Post-Incident Review', description: 'Learning from failures without blame' },
         { name: 'Resourcefulness', description: 'Working with available tools and constraints' },
         { name: 'Intellectual Humility', description: 'Admitting gaps in knowledge and learning' },
+        { name: 'Hypothesis Testing', description: 'Systematic approach to isolating variables' },
       ],
     },
     {
@@ -381,6 +408,7 @@ async function main() {
         { name: 'Organizational Networking', description: 'Knowing who to ask for what' },
         { name: 'Meeting Facilitation', description: 'Keeping discussions productive and on-track' },
         { name: 'Effective Note-Taking', description: 'Capturing actionable information' },
+        { name: 'Task Prioritization', description: 'Managing competing priorities effectively' },
       ],
     },
     {
@@ -395,6 +423,7 @@ async function main() {
         { name: 'Progress Recognition', description: 'Acknowledging incremental achievements' },
         { name: 'Workspace Optimization', description: 'Ergonomics, environment, productivity setup' },
         { name: 'Energy Management', description: 'Aligning work with personal productivity patterns' },
+        { name: 'Focus & Deep Work', description: 'Protecting time for concentrated effort' },
       ],
     },
 
@@ -411,6 +440,8 @@ async function main() {
         { name: 'SOC 2 / ISO 27001', description: 'Framework implementation and readiness' },
         { name: 'Security Baseline Standards', description: 'Ensuring minimum controls across clients' },
         { name: 'Compliance Communication', description: 'Explaining requirements to resistant stakeholders' },
+        { name: 'PCI-DSS', description: 'Payment card industry requirements and assessments' },
+        { name: 'CMMC / NIST 800-171', description: 'Government contractor compliance requirements' },
       ],
     },
     {
@@ -425,6 +456,7 @@ async function main() {
         { name: 'Referral Networks', description: 'Relationships with CPAs, attorneys, complementary services' },
         { name: 'Client Communication', description: 'Newsletters, updates, value-add content' },
         { name: 'Community Engagement', description: 'Local business groups, chambers, industry associations' },
+        { name: 'Event Planning', description: 'Client appreciation, technology showcases, lunch & learns' },
       ],
     },
     {
@@ -439,6 +471,8 @@ async function main() {
         { name: 'Creative & Design', description: 'Mac environments, Jamf, creative workflows' },
         { name: 'Retail & Hospitality', description: 'POS systems, multi-location, guest networks' },
         { name: 'Construction & Field Services', description: 'Mobile, rugged devices, remote connectivity' },
+        { name: 'Education (K-12)', description: 'CIPA, student privacy, 1:1 device programs' },
+        { name: 'Government & Municipal', description: 'Public records, accessibility, procurement requirements' },
       ],
     },
   ];
