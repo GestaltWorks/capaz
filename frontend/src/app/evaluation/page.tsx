@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { assessments, skills, SkillCategory, Assessment } from '@/lib/api';
 import DashboardLayout from '@/components/DashboardLayout';
+import OnboardingModal from '@/components/OnboardingModal';
 
 interface SkillResponse {
   level: number;
@@ -31,6 +32,7 @@ export default function AssessmentPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -60,7 +62,13 @@ export default function AssessmentPage() {
         }
         // Expand all categories by default
         setExpandedCategories(new Set(catRes.categories.map((c) => c.id)));
-      }).finally(() => setLoading(false));
+      }).finally(() => {
+        setLoading(false);
+        // Show onboarding if first visit
+        if (!localStorage.getItem('capaz_onboarding_complete')) {
+          setShowOnboarding(true);
+        }
+      });
     }
   }, [token]);
 
@@ -123,6 +131,7 @@ export default function AssessmentPage() {
 
   return (
     <DashboardLayout>
+      {showOnboarding && <OnboardingModal onComplete={() => setShowOnboarding(false)} />}
       <div className="space-y-6">
         <div className="flex justify-between items-start">
           <div>
