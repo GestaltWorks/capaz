@@ -276,8 +276,9 @@ model AssessmentResponse {
   // FUTURE INTENT
   // ============================================================================
 
-  // Willingness to use in future roles (true = "I'd take a job requiring this")
-  willingToUse Boolean @default(true) @map("willing_to_use")
+  // Willingness to use in future roles/projects (1-4):
+  //   1=Don't consider me, 2=If needed, 3=Happy to, 4=Highly eager
+  futureWillingness Int @default(3) @map("future_willingness")
 
   // Would they relocate/change teams for opportunities using this skill?
   mobilityForSkill Boolean @default(false) @map("mobility_for_skill")

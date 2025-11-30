@@ -7,6 +7,12 @@ import { assessments, skills, SkillCategory } from '@/lib/api';
 import DashboardLayout from '@/components/DashboardLayout';
 import OnboardingModal from '@/components/OnboardingModal';
 
+interface Certification {
+  name: string;
+  obtained: string;
+  needsRenewal: boolean;
+}
+
 interface SkillResponse {
   hasExperience: boolean;
   wantsExperience: boolean;  // For people who WANT to learn but don't have experience yet
@@ -14,9 +20,7 @@ interface SkillResponse {
   enjoyment: number;
   usesAtWork: boolean;
   hasCerts: boolean;
-  certDetails: string;
-  certExpiry: string;
-  needsRenewal: boolean;
+  certifications: Certification[];  // Multiple certifications
   trainingBackground: string[];
   wantsTraining: boolean;
   trainingUrgency: string;
@@ -24,15 +28,15 @@ interface SkillResponse {
   conferenceInterest: string;
   canMentor: boolean;
   canLead: boolean;
-  willingFuture: boolean;
+  futureWillingness: number; // 1-4: 1=don't consider me, 2=if needed, 3=happy to, 4=eager
   notes: string;
 }
 
 const DEFAULTS: SkillResponse = {
   hasExperience: false, wantsExperience: false, proficiency: 25, enjoyment: 50, usesAtWork: false,
-  hasCerts: false, certDetails: '', certExpiry: '', needsRenewal: false,
+  hasCerts: false, certifications: [],
   trainingBackground: [], wantsTraining: false, trainingUrgency: '', trainingType: '',
-  conferenceInterest: '', canMentor: false, canLead: false, willingFuture: true, notes: '',
+  conferenceInterest: '', canMentor: false, canLead: false, futureWillingness: 3, notes: '',
 };
 
 const TRAINING_BG = [
@@ -81,6 +85,40 @@ function EnjoymentSlider({ value, onChange, disabled }: { value: number; onChang
   );
 }
 
+// Willingness slider (1-4) for future roles/projects
+const WILLINGNESS_LEVELS = [
+  { value: 1, label: "Don't consider me", color: 'bg-red-100 border-red-300 text-red-700' },
+  { value: 2, label: 'If needed', color: 'bg-yellow-100 border-yellow-300 text-yellow-700' },
+  { value: 3, label: 'Happy to', color: 'bg-blue-100 border-blue-300 text-blue-700' },
+  { value: 4, label: 'Highly eager', color: 'bg-green-100 border-green-300 text-green-700' },
+];
+
+function WillingnessSelector({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs text-gray-500">
+        <span>Future willingness</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300">{WILLINGNESS_LEVELS.find(l => l.value === value)?.label}</span>
+      </div>
+      <div className="flex gap-1">
+        {WILLINGNESS_LEVELS.map((level) => (
+          <button
+            key={level.value}
+            onClick={() => onChange(level.value)}
+            className={`flex-1 py-1.5 px-2 text-xs font-medium rounded border transition-all ${
+              value === level.value
+                ? level.color + ' shadow-sm'
+                : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 dark:bg-slate-700 dark:border-slate-600 dark:text-gray-400'
+            }`}
+          >
+            {level.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AssessmentPage() {
   const { user, token, isLoading } = useAuth();
   const router = useRouter();
@@ -108,21 +146,35 @@ export default function AssessmentPage() {
         if (assessRes.assessment?.responses) {
           const existing: Record<string, SkillResponse> = {};
           assessRes.assessment.responses.forEach((r: Record<string, unknown>) => {
+            // Convert old boolean willingToUse to new 1-4 scale
+            const oldWilling = r.willingToUse as boolean | undefined;
+            const futureWillingness = typeof r.futureWillingness === 'number'
+              ? r.futureWillingness as number
+              : (oldWilling === false ? 1 : 3);
+            // Parse certifications - could be old string or new JSON array
+            let certifications: Certification[] = [];
+            const rawCerts = r.certifications;
+            if (typeof rawCerts === 'string' && rawCerts) {
+              // Old format: single string - convert to array with one entry
+              certifications = [{ name: rawCerts, obtained: '', needsRenewal: false }];
+            } else if (Array.isArray(rawCerts)) {
+              certifications = rawCerts as Certification[];
+            }
             existing[r.skillId as string] = {
               ...DEFAULTS,
               hasExperience: (r.level as number) > 0,
               proficiency: ((r.level as number) ?? 0) * 20,
               enjoyment: ((r.interestLevel as number) ?? 3) * 20,
-              yearsExperience: (r.yearsExperience as number) ?? 0,
-              certDetails: (r.certifications as string) ?? '',
-              hasCerts: !!(r.certifications as string),
-              willingFuture: (r.willingToUse as boolean) ?? true,
+              certifications,
+              hasCerts: certifications.length > 0,
+              futureWillingness,
               notes: (r.notes as string) ?? '',
             };
           });
           setResponses(existing);
         }
-        setExpandedCategories(new Set(catRes.categories.map((c) => c.id)));
+        // Start with all categories collapsed - set to empty
+        setExpandedCategories(new Set());
       }).finally(() => setLoading(false));
     }
   }, [token]);
@@ -169,10 +221,9 @@ export default function AssessmentPage() {
             useFrequency: r.usesAtWork ? 4 : 2,
             mentorLevel: r.canMentor ? 2 : 0,
             leadLevel: r.canLead ? 2 : 0,
-            yearsExperience: r.yearsExperience,
             trainingSource: r.trainingBackground.join(', ') || undefined,
-            certifications: r.hasCerts ? JSON.stringify([{ name: r.certDetails, expiry: r.certExpiry }]) : undefined,
-            willingToUse: r.willingFuture,
+            certifications: r.hasCerts && r.certifications.length > 0 ? JSON.stringify(r.certifications) : undefined,
+            futureWillingness: r.futureWillingness,
             notes: [r.conferenceInterest ? `Conferences: ${r.conferenceInterest}` : '', r.notes].filter(Boolean).join(' | ') || undefined,
           })),
       };
@@ -220,18 +271,38 @@ export default function AssessmentPage() {
           </div>
         </div>
 
-        {categories.map((category) => (
+        {categories.map((category) => {
+          // Calculate completion status for this category
+          const categorySkillIds = category.skills?.map(s => s.id) || [];
+          const filledCount = categorySkillIds.filter(id => responses[id]?.hasExperience || responses[id]?.wantsExperience).length;
+          const totalInCategory = categorySkillIds.length;
+          const isComplete = totalInCategory > 0 && filledCount === totalInCategory;
+          const isPartial = filledCount > 0 && filledCount < totalInCategory;
+
+          // Header styles based on completion - make each state visually distinct
+          const isExpanded = expandedCategories.has(category.id);
+          const headerBg = isComplete
+            ? 'bg-emerald-600 dark:bg-emerald-700'
+            : isPartial
+            ? 'bg-yellow-500 dark:bg-yellow-600'
+            : 'bg-indigo-600 dark:bg-indigo-700';
+
+          return (
           <div key={category.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             <button onClick={() => toggleCategory(category.id)}
-              className="w-full px-6 py-4 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-slate-700/50">
+              className={`w-full px-6 py-4 flex justify-between items-center transition-colors ${headerBg}`}>
               <div className="text-left">
-                <h2 className="font-semibold text-gray-900 dark:text-white">{category.name}</h2>
-                {category.description && <p className="text-sm text-gray-500">{category.description}</p>}
+                <div className="flex items-center gap-2">
+                  <h2 className="font-semibold text-white">{category.name}</h2>
+                  {isComplete && <span className="text-emerald-200 text-sm">✓ Complete</span>}
+                  {isPartial && <span className="text-yellow-200 text-sm">{filledCount}/{totalInCategory}</span>}
+                </div>
+                {category.description && <p className="text-sm text-gray-200">{category.description}</p>}
               </div>
-              <span className="text-gray-400">{expandedCategories.has(category.id) ? '▼' : '▶'}</span>
+              <span className="text-white text-xl">{isExpanded ? '▼' : '▶'}</span>
             </button>
 
-            {expandedCategories.has(category.id) && category.skills && (
+            {isExpanded && category.skills && (
               <div className="border-t border-gray-200 dark:border-slate-700 divide-y divide-gray-100 dark:divide-slate-700">
                 {category.skills.map((skill) => {
                   const r = responses[skill.id] || DEFAULTS;
@@ -279,18 +350,35 @@ export default function AssessmentPage() {
                       {r.wantsExperience && !r.hasExperience && (
                         <div className="mt-4 space-y-4 pl-0 border-l-4 border-purple-200 dark:border-purple-800 animate-in slide-in-from-top-2">
                           <div className="pl-4">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgently do you want to learn this?</label>
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgent is this for you?</label>
                             <div className="flex gap-2">
                               {[
-                                { id: 'curious', label: 'Just curious', color: 'bg-gray-100' },
-                                { id: 'interested', label: 'Interested', color: 'bg-blue-100' },
-                                { id: 'priority', label: 'Priority for me', color: 'bg-purple-100' },
+                                { id: 'whenever', label: 'Whenever possible', color: 'bg-gray-100' },
+                                { id: 'soon', label: 'Next few months', color: 'bg-yellow-100' },
+                                { id: 'urgent', label: 'High priority', color: 'bg-red-100' },
                               ].map((u) => (
                                 <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
                                   className={`px-3 py-1.5 text-sm rounded border transition-all ${
                                     r.trainingUrgency === u.id ? `${u.color} border-purple-400 font-medium` : 'bg-white border-gray-200 dark:bg-slate-700'
                                   }`}>
                                   {u.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="pl-4">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">What type of learning?</label>
+                            <div className="flex gap-2">
+                              {[
+                                { id: 'course', label: 'One-time course' },
+                                { id: 'ongoing', label: 'Ongoing learning' },
+                                { id: 'conference', label: 'Conference/event' },
+                              ].map((t) => (
+                                <button key={t.id} onClick={() => updateResponse(skill.id, { trainingType: t.id })}
+                                  className={`px-3 py-1.5 text-sm rounded border transition-all ${
+                                    r.trainingType === t.id ? 'bg-purple-100 border-purple-400 font-medium' : 'bg-white border-gray-200 dark:bg-slate-700'
+                                  }`}>
+                                  {t.label}
                                 </button>
                               ))}
                             </div>
@@ -327,26 +415,60 @@ export default function AssessmentPage() {
                             <EnjoymentSlider value={r.enjoyment} onChange={(v) => updateResponse(skill.id, { enjoyment: v })} />
                           </div>
 
-                          {/* Certifications */}
+                          {/* Certifications - Multi-entry */}
                           <div className="pl-4 space-y-3">
                             <label className="flex items-center gap-3 cursor-pointer">
-                              <input type="checkbox" checked={r.hasCerts} onChange={(e) => updateResponse(skill.id, { hasCerts: e.target.checked })}
+                              <input type="checkbox" checked={r.hasCerts} onChange={(e) => {
+                                if (e.target.checked && r.certifications.length === 0) {
+                                  // Add first empty cert when checking
+                                  updateResponse(skill.id, { hasCerts: true, certifications: [{ name: '', obtained: '', needsRenewal: false }] });
+                                } else {
+                                  updateResponse(skill.id, { hasCerts: e.target.checked });
+                                }
+                              }}
                                 className="w-5 h-5 rounded border-gray-300 text-blue-600" />
                               <span className="text-sm text-gray-700 dark:text-gray-300">I have certifications for this skill</span>
                             </label>
                             {r.hasCerts && (
-                              <div className="grid grid-cols-3 gap-3 animate-in slide-in-from-top-1">
-                                <input type="text" placeholder="Cert names (AWS SAA, CCNA...)" value={r.certDetails}
-                                  onChange={(e) => updateResponse(skill.id, { certDetails: e.target.value })}
-                                  className="px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                <input type="text" placeholder="When obtained?" value={r.certExpiry}
-                                  onChange={(e) => updateResponse(skill.id, { certExpiry: e.target.value })}
-                                  className="px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                  <input type="checkbox" checked={r.needsRenewal} onChange={(e) => updateResponse(skill.id, { needsRenewal: e.target.checked })}
-                                    className="w-4 h-4 rounded" />
-                                  Needs renewal
-                                </label>
+                              <div className="space-y-2 animate-in slide-in-from-top-1">
+                                {r.certifications.map((cert, idx) => (
+                                  <div key={idx} className="flex gap-2 items-center">
+                                    <input type="text" placeholder="Certification name" value={cert.name}
+                                      onChange={(e) => {
+                                        const updated = [...r.certifications];
+                                        updated[idx] = { ...cert, name: e.target.value };
+                                        updateResponse(skill.id, { certifications: updated });
+                                      }}
+                                      className="flex-1 px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                                    <input type="text" placeholder="Year obtained" value={cert.obtained}
+                                      onChange={(e) => {
+                                        const updated = [...r.certifications];
+                                        updated[idx] = { ...cert, obtained: e.target.value };
+                                        updateResponse(skill.id, { certifications: updated });
+                                      }}
+                                      className="w-28 px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                                      <input type="checkbox" checked={cert.needsRenewal} onChange={(e) => {
+                                        const updated = [...r.certifications];
+                                        updated[idx] = { ...cert, needsRenewal: e.target.checked };
+                                        updateResponse(skill.id, { certifications: updated });
+                                      }}
+                                        className="w-4 h-4 rounded" />
+                                      Renewal
+                                    </label>
+                                    <button onClick={() => {
+                                      const updated = r.certifications.filter((_, i) => i !== idx);
+                                      updateResponse(skill.id, { certifications: updated, hasCerts: updated.length > 0 });
+                                    }}
+                                      className="text-red-500 hover:text-red-700 px-2 py-1 text-lg">×</button>
+                                  </div>
+                                ))}
+                                <button onClick={() => {
+                                  updateResponse(skill.id, { certifications: [...r.certifications, { name: '', obtained: '', needsRenewal: false }] });
+                                }}
+                                  className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center gap-1">
+                                  <span>+</span> Add another certification
+                                </button>
                               </div>
                             )}
                           </div>
@@ -378,15 +500,15 @@ export default function AssessmentPage() {
                             {r.wantsTraining && (
                               <div className="space-y-3 animate-in slide-in-from-top-1">
                                 <div>
-                                  <span className="text-xs text-gray-500 mb-1 block">How urgently?</span>
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgent is this for you?</label>
                                   <div className="flex gap-2">
                                     {[
-                                      { id: 'whenever', label: 'Whenever', color: 'bg-gray-100' },
+                                      { id: 'whenever', label: 'Whenever possible', color: 'bg-gray-100' },
                                       { id: 'soon', label: 'Next few months', color: 'bg-yellow-100' },
-                                      { id: 'urgent', label: 'ASAP!', color: 'bg-red-100' },
+                                      { id: 'urgent', label: 'High priority', color: 'bg-red-100' },
                                     ].map((u) => (
                                       <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
-                                        className={`px-3 py-1.5 text-xs rounded border transition-all ${
+                                        className={`px-3 py-1.5 text-sm rounded border transition-all ${
                                           r.trainingUrgency === u.id ? `${u.color} border-gray-400 font-medium` : 'bg-white border-gray-200 dark:bg-slate-700'
                                         }`}>
                                         {u.label}
@@ -395,7 +517,7 @@ export default function AssessmentPage() {
                                   </div>
                                 </div>
                                 <div>
-                                  <span className="text-xs text-gray-500 mb-1 block">What type of learning?</span>
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">What type of learning?</label>
                                   <div className="flex gap-2">
                                     {[
                                       { id: 'course', label: 'One-time course' },
@@ -403,7 +525,7 @@ export default function AssessmentPage() {
                                       { id: 'conference', label: 'Conference/event' },
                                     ].map((t) => (
                                       <button key={t.id} onClick={() => updateResponse(skill.id, { trainingType: t.id })}
-                                        className={`px-3 py-1.5 text-xs rounded border transition-all ${
+                                        className={`px-3 py-1.5 text-sm rounded border transition-all ${
                                           r.trainingType === t.id ? 'bg-purple-100 border-purple-400 font-medium' : 'bg-white border-gray-200 dark:bg-slate-700'
                                         }`}>
                                         {t.label}
@@ -411,11 +533,11 @@ export default function AssessmentPage() {
                                     ))}
                                   </div>
                                 </div>
-                                {r.trainingType === 'conference' && (
-                                  <input type="text" placeholder="Any specific conferences you're interested in?"
+                                <div>
+                                  <input type="text" placeholder="Any specific training, courses, or conferences you're interested in?"
                                     value={r.conferenceInterest} onChange={(e) => updateResponse(skill.id, { conferenceInterest: e.target.value })}
                                     className="w-full px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
-                                )}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -432,11 +554,17 @@ export default function AssessmentPage() {
                                 className="w-5 h-5 rounded border-gray-300 text-indigo-600" />
                               <span className="text-sm text-gray-700 dark:text-gray-300">I can lead projects using this</span>
                             </label>
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" checked={r.willingFuture} onChange={(e) => updateResponse(skill.id, { willingFuture: e.target.checked })}
-                                className="w-5 h-5 rounded border-gray-300 text-green-600" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Willing to use in future roles</span>
+                          </div>
+
+                          {/* Future Willingness */}
+                          <div className="pl-4">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                              Willingness to use in future roles/projects
                             </label>
+                            <WillingnessSelector
+                              value={r.futureWillingness}
+                              onChange={(v) => updateResponse(skill.id, { futureWillingness: v })}
+                            />
                           </div>
 
                           {/* Notes */}
@@ -453,7 +581,8 @@ export default function AssessmentPage() {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     </DashboardLayout>
   );

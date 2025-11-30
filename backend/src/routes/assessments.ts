@@ -21,8 +21,8 @@ const responseSchema = z.object({
   // Training & Certs
   trainingSource: z.string().optional(),
   certifications: z.string().optional(), // JSON array
-  // Future intent
-  willingToUse: z.boolean().optional(),
+  // Future intent - 1=Don't consider me, 2=If needed, 3=Happy to, 4=Highly eager
+  futureWillingness: z.number().int().min(1).max(4).optional(),
   mobilityForSkill: z.boolean().optional(),
   // Notes
   notes: z.string().optional(),
@@ -112,9 +112,10 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
           lastUsed: r.lastUsed ? new Date(r.lastUsed) : null,
           // Training & certs
           trainingSource: r.trainingSource,
-          certifications: r.certifications ? JSON.parse(r.certifications) : [],
-          // Intent
-          willingToUse: r.willingToUse ?? true,
+          // certifications comes as a JSON string from frontend, parse for JSON db field
+          certifications: r.certifications ? (typeof r.certifications === 'string' ? JSON.parse(r.certifications) : r.certifications) : [],
+          // Intent - 1=Don't consider me, 2=If needed, 3=Happy to, 4=Highly eager
+          futureWillingness: r.futureWillingness ?? 3,
           mobilityForSkill: r.mobilityForSkill ?? false,
           notes: r.notes,
         })),
