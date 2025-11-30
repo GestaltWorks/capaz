@@ -262,13 +262,12 @@ export default function AssessmentPage() {
           </button>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <div className="flex justify-between items-center">
-            <span className="text-blue-800 dark:text-blue-300">Progress: {assessedCount} of {totalSkills} skills evaluated</span>
-            <div className="w-48 h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600" style={{ width: `${totalSkills ? (assessedCount/totalSkills)*100 : 0}%` }}></div>
-            </div>
-          </div>
+        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+          <span className="text-slate-700 dark:text-slate-300">
+            {assessedCount === 0
+              ? 'No skills marked yet — check the ones relevant to you'
+              : `${assessedCount} skill${assessedCount === 1 ? '' : 's'} marked`}
+          </span>
         </div>
 
         {categories.map((category) => {
