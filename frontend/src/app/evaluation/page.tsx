@@ -54,12 +54,20 @@ function ProficiencySlider({ value, onChange, disabled }: { value: number; onCha
     if (v < 85) return "More skilled than most";
     return "Expert — few are better";
   };
+  const getEmoji = (v: number) => {
+    if (v < 15) return "🔧";
+    if (v < 30) return "📚";
+    if (v < 50) return "🛠️";
+    if (v < 70) return "💪";
+    if (v < 85) return "⚡";
+    return "🏆";
+  };
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>Novice</span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">{getLabel(value)}</span>
-        <span>Expert</span>
+    <div className="space-y-2">
+      <div className="flex justify-between items-center text-gray-500">
+        <span className="text-2xl">🔧</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300"><span className="text-2xl">{getEmoji(value)}</span> {getLabel(value)}</span>
+        <span className="text-2xl">🏆</span>
       </div>
       <input type="range" min="0" max="100" value={value} onChange={(e) => onChange(+e.target.value)} disabled={disabled}
         className="w-full h-2 rounded-full appearance-none cursor-pointer disabled:opacity-40"
