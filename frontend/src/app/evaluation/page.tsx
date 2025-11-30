@@ -9,10 +9,10 @@ import OnboardingModal from '@/components/OnboardingModal';
 
 interface SkillResponse {
   hasExperience: boolean;
+  wantsExperience: boolean;  // For people who WANT to learn but don't have experience yet
   proficiency: number;
   enjoyment: number;
   usesAtWork: boolean;
-  yearsExperience: number;
   hasCerts: boolean;
   certDetails: string;
   certExpiry: string;
@@ -29,7 +29,7 @@ interface SkillResponse {
 }
 
 const DEFAULTS: SkillResponse = {
-  hasExperience: false, proficiency: 25, enjoyment: 50, usesAtWork: false, yearsExperience: 0,
+  hasExperience: false, wantsExperience: false, proficiency: 25, enjoyment: 50, usesAtWork: false,
   hasCerts: false, certDetails: '', certExpiry: '', needsRenewal: false,
   trainingBackground: [], wantsTraining: false, trainingUrgency: '', trainingType: '',
   conferenceInterest: '', canMentor: false, canLead: false, willingFuture: true, notes: '',
@@ -242,43 +242,83 @@ export default function AssessmentPage() {
                   };
                   return (
                     <div key={skill.id} className="px-6 py-5">
-                      {/* Skill name + initial toggle */}
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <div>
+                      {/* Skill name + toggles */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
                           <h3 className="font-medium text-gray-900 dark:text-white">{skill.name}</h3>
                           {skill.description && <p className="text-sm text-gray-500 mt-0.5">{skill.description}</p>}
                         </div>
-                        <label className="flex items-center gap-2 cursor-pointer shrink-0">
-                          <span className="text-sm text-gray-600 dark:text-gray-400">I have experience</span>
-                          <div className={`w-12 h-6 rounded-full p-1 transition-colors ${r.hasExperience ? 'bg-green-500' : 'bg-gray-300'}`}
-                            onClick={() => updateResponse(skill.id, { hasExperience: !r.hasExperience })}>
-                            <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${r.hasExperience ? 'translate-x-6' : ''}`} />
-                          </div>
-                        </label>
+                        {/* Two distinct toggles */}
+                        <div className="flex flex-col gap-2 shrink-0">
+                          {/* I have experience - green */}
+                          <button onClick={() => updateResponse(skill.id, { hasExperience: !r.hasExperience, wantsExperience: false })}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                              r.hasExperience
+                                ? 'bg-green-500 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-400'
+                            }`}>
+                            <span className="text-base">{r.hasExperience ? '✓' : '○'}</span>
+                            I have experience
+                          </button>
+                          {/* I want experience - purple/blue */}
+                          {!r.hasExperience && (
+                            <button onClick={() => updateResponse(skill.id, { wantsExperience: !r.wantsExperience, hasExperience: false })}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                                r.wantsExperience
+                                  ? 'bg-purple-500 text-white shadow-md'
+                                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-400'
+                              }`}>
+                              <span className="text-base">{r.wantsExperience ? '★' : '☆'}</span>
+                              I want to learn this
+                            </button>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Progressive disclosure - only show if has experience */}
+                      {/* Wants Experience - show training interest form */}
+                      {r.wantsExperience && !r.hasExperience && (
+                        <div className="mt-4 space-y-4 pl-0 border-l-4 border-purple-200 dark:border-purple-800 animate-in slide-in-from-top-2">
+                          <div className="pl-4">
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How urgently do you want to learn this?</label>
+                            <div className="flex gap-2">
+                              {[
+                                { id: 'curious', label: 'Just curious', color: 'bg-gray-100' },
+                                { id: 'interested', label: 'Interested', color: 'bg-blue-100' },
+                                { id: 'priority', label: 'Priority for me', color: 'bg-purple-100' },
+                              ].map((u) => (
+                                <button key={u.id} onClick={() => updateResponse(skill.id, { trainingUrgency: u.id })}
+                                  className={`px-3 py-1.5 text-sm rounded border transition-all ${
+                                    r.trainingUrgency === u.id ? `${u.color} border-purple-400 font-medium` : 'bg-white border-gray-200 dark:bg-slate-700'
+                                  }`}>
+                                  {u.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="pl-4">
+                            <input type="text" placeholder="Any specific training, courses, or conferences you're interested in?"
+                              value={r.conferenceInterest} onChange={(e) => updateResponse(skill.id, { conferenceInterest: e.target.value })}
+                              className="w-full px-3 py-2 border rounded text-sm dark:bg-slate-700 dark:border-slate-600" />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Has Experience - show full form */}
                       {r.hasExperience && (
-                        <div className="space-y-5 pl-0 border-l-4 border-green-200 dark:border-green-800 ml-0 animate-in slide-in-from-top-2">
+                        <div className="mt-4 space-y-5 pl-0 border-l-4 border-green-200 dark:border-green-800 animate-in slide-in-from-top-2">
                           {/* Proficiency Slider */}
                           <div className="pl-4">
                             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">How would you rate your skill level?</label>
                             <ProficiencySlider value={r.proficiency} onChange={(v) => updateResponse(skill.id, { proficiency: v })} />
                           </div>
 
-                          {/* Currently using + Years */}
-                          <div className="pl-4 grid grid-cols-2 gap-4">
+                          {/* Currently using at work */}
+                          <div className="pl-4">
                             <label className="flex items-center gap-3 cursor-pointer">
                               <input type="checkbox" checked={r.usesAtWork} onChange={(e) => updateResponse(skill.id, { usesAtWork: e.target.checked })}
                                 className="w-5 h-5 rounded border-gray-300 text-blue-600" />
                               <span className="text-sm text-gray-700 dark:text-gray-300">I use this in my current role</span>
                             </label>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Years of experience:</span>
-                              <input type="number" min="0" max="40" value={r.yearsExperience}
-                                onChange={(e) => updateResponse(skill.id, { yearsExperience: Math.max(0, +e.target.value || 0) })}
-                                className="w-16 px-2 py-1 border rounded text-center dark:bg-slate-700 dark:border-slate-600" />
-                            </div>
                           </div>
 
                           {/* Enjoyment Slider */}
