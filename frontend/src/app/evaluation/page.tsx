@@ -265,8 +265,8 @@ export default function AssessmentPage() {
         <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
           <span className="text-slate-700 dark:text-slate-300">
             {assessedCount === 0
-              ? 'No skills marked yet — check the ones relevant to you'
-              : `${assessedCount} skill${assessedCount === 1 ? '' : 's'} marked`}
+              ? 'No skills evaluated yet — check the ones relevant to you'
+              : `${assessedCount} skill${assessedCount === 1 ? '' : 's'} evaluated`}
           </span>
         </div>
 
