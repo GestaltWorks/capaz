@@ -10,36 +10,27 @@ const STEPS = [
   {
     title: 'Welcome to Capaz',
     icon: '👋',
-    content: `This is your Capability Vector platform. Unlike traditional skills assessments, we capture a multi-dimensional view of your capabilities.`,
+    content: `This is your Capability Vector — a rich picture of your skills, interests, and growth goals. It's designed to be quick, honest, and actually useful.`,
   },
   {
-    title: 'Your Capability Vector',
-    icon: '📊',
-    content: `For each skill, you'll provide:
-• Proficiency Level (0-5)
-• Interest — how much you enjoy it
-• Training Desire — want to learn more?
-• Usage Frequency — how often you use it
-• Mentor & Lead capability`,
+    title: 'How It Works',
+    icon: '🎚️',
+    content: `For each skill, just toggle "I have experience" if you've worked with it. Then use the sliders to show your proficiency level and how much you enjoy it. No numbers to memorize — just slide from Novice to Expert.`,
   },
   {
-    title: 'Experience & Credentials',
-    icon: '🎓',
-    content: `You'll also track:
-• Years of experience
-• Training background (self-taught, courses, etc.)
-• Certifications you hold
-• Whether you'd use this skill in future roles`,
+    title: 'Tell Us More',
+    icon: '📋',
+    content: `We'll ask about certifications, training background, and whether you want more training. If you're interested in conferences or specific learning, you can note that too. It all helps match you with the right opportunities.`,
   },
   {
-    title: 'Why This Matters',
-    icon: '🎯',
-    content: `This isn't a performance review—it's about matching people with opportunities. Your vector helps identify mentors, training needs, and project staffing. Be honest!`,
+    title: 'Mentoring & Leadership',
+    icon: '🌟',
+    content: `Can you mentor others? Lead projects? These checkboxes help us find the right people when teams need guidance or project leads. It's about connecting skills with needs.`,
   },
   {
-    title: 'Save Anytime',
-    icon: '💾',
-    content: `Click "Save Evaluation" whenever you're ready. You can always come back to update your vector as you grow and your interests change.`,
+    title: "It's About Growth",
+    icon: '🌱',
+    content: `This isn't a performance review. It's about understanding where you are, where you want to go, and how we can help. Be honest — that's how we build the best teams and find the right training.`,
   },
 ];
 
