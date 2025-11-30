@@ -298,7 +298,7 @@ export default function AssessmentPage() {
                 </div>
                 {category.description && <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>}
               </div>
-              <span className="text-gray-400 text-3xl">{isExpanded ? '▼' : '▶'}</span>
+              <span className="text-gray-400">{isExpanded ? '▼' : '▶'}</span>
             </button>
 
             {isExpanded && category.skills && (
