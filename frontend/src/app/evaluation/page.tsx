@@ -64,13 +64,19 @@ export default function AssessmentPage() {
         setExpandedCategories(new Set(catRes.categories.map((c) => c.id)));
       }).finally(() => {
         setLoading(false);
-        // Show onboarding if first visit
-        if (!localStorage.getItem('capaz_onboarding_complete')) {
-          setShowOnboarding(true);
-        }
       });
     }
   }, [token]);
+
+  // Show onboarding on first visit (always for demo users)
+  useEffect(() => {
+    if (user && !loading) {
+      const isDemoUser = user.email?.endsWith('@capaz.io') || user.email?.endsWith('@demo-msp.com');
+      if (isDemoUser || !localStorage.getItem('capaz_onboarding_complete')) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [user, loading]);
 
   const toggleCategory = (id: string) => {
     setExpandedCategories((prev) => {
