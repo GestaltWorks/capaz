@@ -73,11 +73,11 @@ function EnjoymentSlider({ value, onChange, disabled }: { value: number; onChang
   const emoji = value < 25 ? '😫' : value < 50 ? '😐' : value < 75 ? '😊' : '🤩';
   const label = value < 25 ? 'Rather avoid' : value < 50 ? 'Neutral' : value < 75 ? 'Enjoy it' : 'Love it!';
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>😫</span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">{emoji} {label}</span>
-        <span>🤩</span>
+    <div className="space-y-2">
+      <div className="flex justify-between items-center text-gray-500">
+        <span className="text-2xl">😫</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300"><span className="text-2xl">{emoji}</span> {label}</span>
+        <span className="text-2xl">🤩</span>
       </div>
       <input type="range" min="0" max="100" value={value} onChange={(e) => onChange(+e.target.value)} disabled={disabled}
         className="w-full h-2 rounded-full appearance-none cursor-pointer disabled:opacity-40 bg-gradient-to-r from-red-200 via-gray-200 to-green-200" />
