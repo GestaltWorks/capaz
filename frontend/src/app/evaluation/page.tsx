@@ -279,27 +279,27 @@ export default function AssessmentPage() {
           const isComplete = totalInCategory > 0 && filledCount === totalInCategory;
           const isPartial = filledCount > 0 && filledCount < totalInCategory;
 
-          // Header styles based on completion - make each state visually distinct
+          // Header styles based on completion - subtle but distinct
           const isExpanded = expandedCategories.has(category.id);
-          const headerBg = isComplete
-            ? 'bg-emerald-600 dark:bg-emerald-700'
+          const headerStyles = isComplete
+            ? 'bg-green-100 dark:bg-green-900/40 border-l-4 border-l-green-500'
             : isPartial
-            ? 'bg-yellow-500 dark:bg-yellow-600'
-            : 'bg-indigo-600 dark:bg-indigo-700';
+            ? 'bg-amber-50 dark:bg-amber-900/30 border-l-4 border-l-amber-500'
+            : 'bg-slate-200 dark:bg-slate-700 border-l-4 border-l-slate-400';
 
           return (
           <div key={category.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden">
             <button onClick={() => toggleCategory(category.id)}
-              className={`w-full px-6 py-4 flex justify-between items-center transition-colors ${headerBg}`}>
+              className={`w-full px-6 py-4 flex justify-between items-center transition-colors hover:opacity-90 ${headerStyles}`}>
               <div className="text-left">
                 <div className="flex items-center gap-2">
-                  <h2 className="font-semibold text-white">{category.name}</h2>
-                  {isComplete && <span className="text-emerald-200 text-sm">✓ Complete</span>}
-                  {isPartial && <span className="text-yellow-200 text-sm">{filledCount}/{totalInCategory}</span>}
+                  <h2 className="font-semibold text-gray-900 dark:text-white">{category.name}</h2>
+                  {isComplete && <span className="text-green-600 dark:text-green-400 text-sm">✓ Complete</span>}
+                  {isPartial && <span className="text-amber-600 dark:text-amber-400 text-sm">{filledCount}/{totalInCategory}</span>}
                 </div>
-                {category.description && <p className="text-sm text-gray-200">{category.description}</p>}
+                {category.description && <p className="text-sm text-gray-500 dark:text-gray-400">{category.description}</p>}
               </div>
-              <span className="text-white text-xl">{isExpanded ? '▼' : '▶'}</span>
+              <span className="text-gray-400 text-lg">{isExpanded ? '▼' : '▶'}</span>
             </button>
 
             {isExpanded && category.skills && (
