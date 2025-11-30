@@ -10,28 +10,36 @@ const STEPS = [
   {
     title: 'Welcome to Capaz',
     icon: '👋',
-    content: `This is your Capability Evaluation platform. Here you'll rate your proficiency across various skills and capabilities relevant to your role.`,
+    content: `This is your Capability Vector platform. Unlike traditional skills assessments, we capture a multi-dimensional view of your capabilities.`,
   },
   {
-    title: 'How the Levels Work',
+    title: 'Your Capability Vector',
     icon: '📊',
-    content: `Rate each capability from 0-5:
-• 0 - No Experience
-• 1 - Beginner (learning/aware)
-• 2 - Basic (can do with guidance)
-• 3 - Intermediate (can do independently)
-• 4 - Advanced (can mentor others)
-• 5 - Expert (subject matter expert)`,
+    content: `For each skill, you'll provide:
+• Proficiency Level (0-5)
+• Interest — how much you enjoy it
+• Training Desire — want to learn more?
+• Usage Frequency — how often you use it
+• Mentor & Lead capability`,
   },
   {
-    title: 'Be Honest',
-    icon: '✨',
-    content: `This evaluation is about identifying growth opportunities, not performance reviews. Be honest about your current level—it helps us identify training needs and match mentors.`,
+    title: 'Experience & Credentials',
+    icon: '🎓',
+    content: `You'll also track:
+• Years of experience
+• Training background (self-taught, courses, etc.)
+• Certifications you hold
+• Whether you'd use this skill in future roles`,
   },
   {
-    title: 'Save Your Progress',
+    title: 'Why This Matters',
+    icon: '🎯',
+    content: `This isn't a performance review—it's about matching people with opportunities. Your vector helps identify mentors, training needs, and project staffing. Be honest!`,
+  },
+  {
+    title: 'Save Anytime',
     icon: '💾',
-    content: `Click "Save Evaluation" at any time to save your progress. You can return and update your evaluation whenever your skills improve or change.`,
+    content: `Click "Save Evaluation" whenever you're ready. You can always come back to update your vector as you grow and your interests change.`,
   },
 ];
 

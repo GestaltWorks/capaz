@@ -224,19 +224,71 @@ model AssessmentResponse {
   skillId String @map("skill_id")
   skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  // Self-assessment level (0-5)
-  level Int
+  // ============================================================================
+  // CAPABILITY VECTOR DIMENSIONS
+  // ============================================================================
 
-  // Certification data
-  hasCertification    Boolean   @default(false) @map("has_certification")
-  certificationName   String?   @map("certification_name")
-  certificationExpiry DateTime? @map("certification_expiry")
+  // 1. PROFICIENCY (0-5): Current ability level
+  //    0=None, 1=Awareness, 2=Beginner, 3=Intermediate, 4=Advanced, 5=Expert
+  level Int @default(0)
 
-  // Training interest
-  wantsTraining Boolean @default(false) @map("wants_training")
-  notes         String?
+  // 2. INTEREST (1-5): How much do they WANT to work with this skill?
+  //    1=Actively avoid, 2=Prefer not, 3=Neutral, 4=Enjoy, 5=Passionate
+  interestLevel Int @default(3) @map("interest_level")
 
-  // Validation
+  // 3. GROWTH DESIRE (1-5): How much do they want MORE training?
+  //    1=No interest, 2=Low priority, 3=Moderate, 4=High priority, 5=Urgent need
+  growthDesire Int @default(3) @map("growth_desire")
+
+  // 4. FREQUENCY (1-5): How often do they use this skill?
+  //    1=Never, 2=Rarely, 3=Monthly, 4=Weekly, 5=Daily
+  useFrequency Int @default(1) @map("use_frequency")
+
+  // 5. MENTOR CAPABILITY (0-3): Can they teach others?
+  //    0=Cannot mentor, 1=Can assist, 2=Can mentor juniors, 3=Expert mentor/trainer
+  mentorLevel Int @default(0) @map("mentor_level")
+
+  // 6. LEAD CAPABILITY (0-3): Can they lead projects using this skill?
+  //    0=Cannot lead, 1=Can support lead, 2=Can lead small projects, 3=Can lead major initiatives
+  leadLevel Int @default(0) @map("lead_level")
+
+  // ============================================================================
+  // EXPERIENCE & RECENCY
+  // ============================================================================
+
+  // Years of experience with this skill (0-30+)
+  yearsExperience Int @default(0) @map("years_experience")
+
+  // When did they last actively use this skill?
+  lastUsed DateTime? @map("last_used")
+
+  // ============================================================================
+  // TRAINING & CERTIFICATIONS
+  // ============================================================================
+
+  // Training background: NONE, SELF_TAUGHT, ONLINE_COURSE, BOOTCAMP, COLLEGE, VENDOR_TRAINING
+  trainingSource String? @map("training_source")
+
+  // Certifications (stored as JSON array of { name, issuer, dateObtained, expiryDate })
+  certifications Json? @default("[]")
+
+  // ============================================================================
+  // FUTURE INTENT
+  // ============================================================================
+
+  // Willingness to use in future roles (true = "I'd take a job requiring this")
+  willingToUse Boolean @default(true) @map("willing_to_use")
+
+  // Would they relocate/change teams for opportunities using this skill?
+  mobilityForSkill Boolean @default(false) @map("mobility_for_skill")
+
+  // ============================================================================
+  // NOTES & VALIDATION
+  // ============================================================================
+
+  notes String?
+
+  // Peer/manager validation
   isPeerValidated   Boolean @default(false) @map("is_peer_validated")
   isManagerApproved Boolean @default(false) @map("is_manager_approved")
 

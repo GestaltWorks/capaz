@@ -7,12 +7,24 @@ const router = Router();
 router.use(authenticate);
 
 const responseSchema = z.object({
-  skillId: z.string().uuid(),
-  level: z.number().int().min(0).max(5),
-  hasCertification: z.boolean().optional(),
-  certificationName: z.string().optional(),
-  certificationExpiry: z.string().datetime().optional(),
-  wantsTraining: z.boolean().optional(),
+  skillId: z.string(),
+  // Capability Vector Dimensions
+  level: z.number().int().min(0).max(5),                    // Proficiency
+  interestLevel: z.number().int().min(1).max(5).optional(), // Interest (1-5)
+  growthDesire: z.number().int().min(1).max(5).optional(),  // Training desire (1-5)
+  useFrequency: z.number().int().min(1).max(5).optional(),  // Usage frequency (1-5)
+  mentorLevel: z.number().int().min(0).max(3).optional(),   // Mentor capability (0-3)
+  leadLevel: z.number().int().min(0).max(3).optional(),     // Lead capability (0-3)
+  // Experience
+  yearsExperience: z.number().int().min(0).max(50).optional(),
+  lastUsed: z.string().datetime().optional(),
+  // Training & Certs
+  trainingSource: z.string().optional(),
+  certifications: z.string().optional(), // JSON array
+  // Future intent
+  willingToUse: z.boolean().optional(),
+  mobilityForSkill: z.boolean().optional(),
+  // Notes
   notes: z.string().optional(),
 });
 
@@ -88,11 +100,22 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
       responses: {
         create: data.responses.map((r) => ({
           skillId: r.skillId,
+          // Core dimensions
           level: r.level,
-          hasCertification: r.hasCertification || false,
-          certificationName: r.certificationName,
-          certificationExpiry: r.certificationExpiry ? new Date(r.certificationExpiry) : null,
-          wantsTraining: r.wantsTraining || false,
+          interestLevel: r.interestLevel ?? 3,
+          growthDesire: r.growthDesire ?? 3,
+          useFrequency: r.useFrequency ?? 1,
+          mentorLevel: r.mentorLevel ?? 0,
+          leadLevel: r.leadLevel ?? 0,
+          // Experience
+          yearsExperience: r.yearsExperience ?? 0,
+          lastUsed: r.lastUsed ? new Date(r.lastUsed) : null,
+          // Training & certs
+          trainingSource: r.trainingSource,
+          certifications: r.certifications ? JSON.parse(r.certifications) : [],
+          // Intent
+          willingToUse: r.willingToUse ?? true,
+          mobilityForSkill: r.mobilityForSkill ?? false,
           notes: r.notes,
         })),
       },
